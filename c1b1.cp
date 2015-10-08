@@ -26,7 +26,7 @@ float percentage (float a, float b){
 int main()
 {
     srand(time(nullptr));
-    
+    //a few edits
     int N;
     cout << "Range from 1? ";
     cin >> N;
