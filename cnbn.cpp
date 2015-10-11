@@ -7,112 +7,93 @@
 //
 
 #include <algorithm>
-#include <cstdlib>
-#include <ctime>
 #include <iostream>
-#include <iterator>
-#include <vector>
 #include <random>
+#include <vector>
 
-using namespace std;
+/* This function tells you if the trial was successful.
+ * k -> Number of elements to drop.
+ * m -> Number of elements that can be chosen.
+ * n -> Worst grade allowed.
+ * xs -> List of elements. The element with the best grade should be 1 and the
+ * element with the worst grade should be N.
+ */
+bool cmbn(int k, int m, int n, std::vector<int> xs) {
+    int N = xs.size();
+    int vacancies = m;
 
-float percentage (float a, float b){
-    //cout << "a is "<<a<<"b is "<<b;
-    float r=0;
-    r=(a*100)/b;
-    return r;
+    // find best out of first k elements
+    int best_k = xs[0];
+    for (int i = 0; i < k; ++i) {
+        if (xs[i] < best_k) best_k = xs[i];
+        if (best_k == 1) return false;
+    }
+
+    // select any element better than first k till no vacancies are left or till
+    // vacancies need to be filled
+    int best_choice = best_k;
+    for (int i = k; i < N - vacancies; ++i)
+    {
+        if (xs[i] < best_choice) {
+            --vacancies;
+            best_choice = xs[i];
+            if (best_choice <= n) return true;
+            if (vacancies == 0) return false;
+        }
+    }
+
+    // fill up remaining vacancies
+    for (int i = N - vacancies; i < N; ++i) {
+        --vacancies;
+        if (xs[i] < best_choice) best_choice = xs[i];
+        if (best_choice <= n) return true;
+    }
+
+    return false;
 }
 
-int main()
-{
-    srand(time(nullptr));
-    
+int main() {
     int N;
-    cout << "Range from 1? ";
-    cin >> N;
-    
-    int choice;
-    cout << "How many choice(s)?";
-    cin >> choice;
-    
-    int best;
-    cout << "What is the minimun best you want for at least one of the person? It start from 1st, 2nd, 3rd, etc.";
-    cin >> best;
-    
-    vector<int> record(N);
-    vector<int> elements (N);
-    std::default_random_engine generator;
-    
-    
-    int times;
-    cout << "Need to check for how many times? ";
-    cin >> times;
-    for (int temp=0; temp<times; temp++) {
-        //shuffles
-        for (int i = 0; i<N; i++) {
-            elements[i]=1+i;
-        }
-        auto currentIndexCounter = elements.size();
-        
-        
-        for (auto iter = elements.rbegin(); iter != elements.rend();
-             iter++, --currentIndexCounter)
-        {
-            std::uniform_real_distribution<double> distribution(0,currentIndexCounter);
-            int number = distribution(generator);
-            int randomIndex = number;
-            
-            if (*iter != elements.at(randomIndex))
-            {
-                std::swap(elements.at(randomIndex), *iter);
-            }
-        }
-        
-        int min = elements[0];
-        int learning;
-        int vacancy = 0;
-        
-        for (learning = 0; learning<(N-choice); learning++) {
-            int one=1;
-            vacancy = 0;
-            for (; one <= learning;one++)
-            {
-                if (elements[one]<min)
-                {
-                    min = elements[one];
-                }
-            }
-            for (int temp = learning; temp < N; temp++)
-            {
-                if (vacancy>(choice-1)) {
-                    break;
-                }
-                else if (elements[temp]<min)
-                {
-                    if (elements[temp] <= best)
-                    {
-                        record[learning]++;
-                        break;
-                    }
-                    else vacancy++;
-                }
-                else if (temp == N-choice && elements[temp] <= best){record[learning]++;}
-            }
+    std::cout << "Range from 1? ";
+    std::cin >> N;
+
+    int m;
+    std::cout << "How many choice(s)? ";
+    std::cin >> m;
+
+    int n;
+    std::cout << "What is the worst grade allowed? ";
+    std::cin >> n;
+
+    int trials;
+    std::cout << "Number of trial(s)? ";
+    std::cin >> trials;
+
+    std::vector<int> xs(N);
+    for (int i = 0; i < N; ++i) xs[i] = i + 1;
+
+    std::default_random_engine g;
+    std::random_device rd;
+    g.seed(rd());
+
+    std::vector<int> record(N - m + 1);
+    for (int temp = 0; temp < trials; ++temp) {
+        std::shuffle(xs.begin(), xs.end(), g);
+        for (int k = 1; k <= N - m; ++k) {
+            if (cmbn(k, m, n, xs)) ++record[k];
         }
     }
-    int max = record[0];
-    for (int temp=0; temp<N; temp++) {
-        if (record[temp]>max) {
-            max = record [temp];
+
+    int best_k = 0, best = 0;
+    for (int k = 1; k <= N - m; ++k) {
+        if (record[k] > best) {
+            best_k = k;
+            best = record[k];
         }
     }
-    vector<int>pos(N);
-    
-    for (int temp=0; temp<N; temp++) {
-        pos[record[temp]]=temp;
-    }
-    float answer=percentage(max,times);
-    cout << "At position "<<pos[max]+1<< " with a chance of "<<answer<<"%.";
-    
+
+    double chance = (double) best / (double) trials;
+    std::cout << "Optimal strategy is to drop " << best_k << " elements with a chance of " << chance << "." << std::endl;
+
     return 0;
 }
