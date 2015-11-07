@@ -18,13 +18,15 @@
  * xs -> List of elements. The element with the best grade should be 1 and the
  * element with the worst grade should be N.
  */
-bool cmbn(int k, int m, int n, std::vector<int> xs) {
+bool cmbn(int k, int m, int n, std::vector<int> xs)
+{
     int N = xs.size();
     int vacancies = m;
 
     // find best out of first k elements
     int best_choice = xs[0];
-    for (int i = 0; i < k; ++i) {
+    for (int i = 0; i < k; ++i)
+    {
         if (xs[i] < best_choice) best_choice = xs[i];
     }
 
@@ -32,7 +34,8 @@ bool cmbn(int k, int m, int n, std::vector<int> xs) {
     // remaining elements must be picked to fill up vacancies
     for (int i = k; i < N - vacancies && vacancies > 0; ++i)
     {
-        if (xs[i] < best_choice) {
+        if (xs[i] < best_choice)
+        {
             --vacancies;
             best_choice = xs[i];
             if (xs[i] <= n) return true;
@@ -40,7 +43,8 @@ bool cmbn(int k, int m, int n, std::vector<int> xs) {
     }
 
     // go through last few elements if there are still vacancies
-    for (int i = N - vacancies; i < N; ++i) {
+    for (int i = N - vacancies; i < N; ++i)
+    {
         --vacancies;
         if (xs[i] <= n) return true;
     }
@@ -48,7 +52,8 @@ bool cmbn(int k, int m, int n, std::vector<int> xs) {
     return false;
 }
 
-int main() {
+int main()
+{
     int N;
     std::cout << "Range from 1? ";
     std::cin >> N;
@@ -74,17 +79,20 @@ int main() {
     g.seed(rd());
 
     std::vector<int> record(N - m + 1);
-    for (int temp = 0; temp < trials; ++temp) {
+    for (int temp = 0; temp < trials; ++temp)
+    {
         std::shuffle(xs.begin(), xs.end(), g);
         for (int k = 1; k <= N - m; ++k)
             if (cmbn(k, m, n, xs)) ++record[k];
     }
 
     int best_k = 0, best = 0;
-    for (int k = 1; k <= N - m; ++k) {
+    for (int k = 1; k <= N - m; ++k)
+    {
         double probability = (double) record[k] / (double) trials;
         std::cout << "k = " << k << ", probability = " << probability << std::endl;
-        if (record[k] > best) {
+        if (record[k] > best)
+        {
             best_k = k;
             best = record[k];
         }
