@@ -20,32 +20,29 @@
  */
 bool cmbn(int k, int m, int n, std::vector<int> xs)
 {
-    int N = xs.size();
-    int vacancies = m;
+    auto N = xs.size();
 
     // find best out of first k elements
     int best_choice = xs[0];
     for (int i = 0; i < k; ++i)
-    {
         if (xs[i] < best_choice) best_choice = xs[i];
-    }
 
     // select any element better than first k till no vacancies are left or till
     // remaining elements must be picked to fill up vacancies
-    for (int i = k; i < N - vacancies && vacancies > 0; ++i)
+    for (int i = k; i < N - m && m > 0; ++i)
     {
         if (xs[i] < best_choice)
         {
-            --vacancies;
+            --m;
             best_choice = xs[i];
             if (xs[i] <= n) return true;
         }
     }
 
     // go through last few elements if there are still vacancies
-    for (int i = N - vacancies; i < N; ++i)
+    for (int i = N - m; i < N; ++i)
     {
-        --vacancies;
+        --m;
         if (xs[i] <= n) return true;
     }
 
